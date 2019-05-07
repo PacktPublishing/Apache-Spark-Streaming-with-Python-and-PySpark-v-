@@ -1,0 +1,196 @@
+Twitter Tutorial Text Lecture
+Section 1, Lecture 8
+Twitter Tutorial Text Lecture
+
+We’re almost ready to go though our first spark project. As a reminder, Spark does fast data processing, streaming, and machine learning on a very large scale. Twitter allows you to get its data using their APIs; one of ways that they make this available is to stream the tweets in real time on search criteria that you define. We’re going to set up a TCP socket,very much like the TCP sockets that act as endpoints for data you access on the internet all the time. We’re going to set up this TCP socket so that instead of taking in data for a website, it takes in raw tweet data. Certain recent python packages allow for data to be streamed directly, but this method with the TCP socket is more modular. Many of these python packages are pretty much black boxes. Using a TCP socket also more closely resembled the majority of instances in which you’d use streaming.
+
+We’re going to be using Spark to get the top 10 hashtags on twitter that appear in tweets with a word we specify. These are going to be the top hashtags in 10 second intervals. If you wanted to get an idea of how people were responding to a certain product or brand or event, this could be a useful way to do it. We’re going to get this data, and then create a consistently updated chart that. Now, it’s important to let you know that this is an advanced demo. We’re not expecting you to be fully ready to code apps like this so early in the course, but we want to show you the details of how a Spark Streaming Application works. We’ll include the files for the notebooks that are already filled out, so you can at least follow along.
+
+We’re going to be getting this data to a TCP socket using the Twitter HTTP client. This will be done by going into Twitter Apps, creating a new app, and then getting our authentication keys for that app. We’re going to get from the Twitter developers page the tokens that will uniquely identify our API usage.
+
+Let’s go to the demo.
+
+…
+
+Now, first we need to install the files that we're going to be using for this course. We're going to be using git, which is a version control system that lets you track changes in files. Plus, it's a pretty easy way to download files from Github. That's the site where you can find all the files for this.
+
+So first, we're going to install git.
+
+sudo apt-get install git
+
+Alright. now that's done, we're going to enter in the following command. Git clone, plus the URL of the git repository. With dot-git on the end, followed by the name we want to add to the folder with the files (you know, to make it easier to type out).
+
+git clone https://github.com/jleetutorial/python-spark-streaming.git pyspark-streaming
+
+###p
+
+...
+
+In order to get tweets from Twitter for our app, we’ll need to register on TwitterApps (###a href="https://apps.twitter.com/">https://apps.twitter.com/). Go to this site, make sure to sign in first. Once you’re signed in, you’ll click on “Create new app” and then fill the below form. Most important part is the name, description, and website. You don’t even need to give a full site, so just this will do fine. Make sure to agree to the developer agreement, and click on “Create your Twitter application.”
+
+…
+
+Second, go to your newly created app and open the “Keys and Access Tokens” tab. You’ll see the consumer key and consumer secret. Click on “Generate my access token.” We’ll now come to this new page where we have the consumer key, consumer secret, access token, and access secret token. This is everything we need to connect our app to the Twitter API.
+
+...
+
+Now that you have these four codes, we’re going to open up Jupyter notebook. We’ll go to the folder for this course containing our first twitter spark app. This is going to be the file that retrieves the stream from twitter. This won’t be the full stream. You actually have to pay twitter money if you want that, but this will provide a steady source. Now, we’re going to show you the code for all this and explain how this works. I recommend that for this part you just run the code in the repository, and don’t try to type out every single part as we go over it. Nobody types that fast.
+
+We’re going to import tweepy, which is a python package for working with Twitter. We’re going to import this packages Oauth authorization capabilities, and we’re going to import it’s streaming capabilities. We’re also going to import JSON, for handling json files, and socket, since we’re going to be streaming the tweets through a TCP socket. For those of you who are new to sockets, TCP stands for Transmission Control Protocol. This is one of the main protocols of the Internet protocol suite, along with the more familiar IP internet protocol.
+
+With this cell, you’ll enter in the consumer key, consumer secret, access token, and access secret that we got from twitter apps. For the sake of this demo, I’m not going to enter in my tokens on screen. This is because it’s a good habit to keep your tokens safe. Before we launch the script, though, I highly recommend entering them in here as strings.
+
+ 
+
+Next we’re going to create a class that will listen to the tweets, and we’ll add a function that actually sends the data through the socket. This will be the Tweetlistener class that inherits from StreamListener. We’ll make this take in a csocket, or client socket. Next we’ll define the function for handling the data that comes it. We’re going to try loading the json files, and then printing the messages themselves. We’re going to make this UTF-8 encoded. This means that emojis that come in will be converted to blanks, avoiding causing an error. We’ll send this message over, while still making it UTF_8. If this all works, we return true. If not, we’ll make this script return a Base Exception.
+
+If there’s an error, we’ll just print the current status.
+
+We’ll make this sendData function, which takes ina client socket. This sets up our connection. So we’re taking in our consumer key, and our consumer secret. We’re going to call set access tokens to take in the access token and access secret.
+
+We’ll define the twitter stream here.
+
+And we’re going to filter the new twitter stream for a particular topic. In this case, let’s go with football. Whatever string we put in goes in must be in the tweet for it to show up in the stream. You don’t have to put in football. You can put in anything, or even multiple items. Just make sure it’s a reasonably popular string or else nothing will show up.
+
+So now we’ve got the cell that actually starts the stream. We’ll define the socket, We’ll specify the host using the address of our local machine.
+
+we’ll specify the port which is 5555 here. This is the port number that the socket will connect to . If you run this script multiple times, you’ll probably have to change this number, but that’s relatively easy, like changing it to 5556 or something like that. We’ll bind the host and port together. And then we’ll just print that the socket is looking for a connection. You can pass in how many seconds you want the socket to listen to. We’ll then do some tuple unpacking if there is a connection with the client.
+
+And then we’ll finally say sendData, and pass in c.
+
+Now, if you try to run this, it will try listening for a connection that is not available yet. You can hit interrupt, We’ll reset the kernel outputs. And what we’re going to do, is we’re going to download this notebook as a regular py file. And we’re going to move this back to our original directory, although I suppose it’s fine if you just leave it in a directory you’ll remember, and can access in the terminal later.
+
+If we look in the py file, we can see that all the markdown is turned to comments, and we have a file we can run alongside a regular JuPyter notebook.
+
+Alright, now, let’s get the spark streaming component up. You’re going to want to open two terminals, one where you’ve types the commands for launching the tweet-reading file but not yet. The other is for running jupyter notebook  
+
+Now let’s set up the notebook with the twitter stream analysis. We’re going to use the second terminal to enter jupyter notebook.
+
+We can go to directly to the notebook with our example. Again, I recommend you use this notebook instead of trying to keep up with typing. First we want to make sure we’re using pyspark. We can do that using the findspark package. Installing this one is a lot easier, it’s just sudo pip3 install findspark. We’ll import it. Next we use Pyspark Init to specify which directory we have all our files for pyspark in. Again, this might differ between your machine and mine, but this is basically just importing spark
+
+import findspark
+
+...
+
+findspark.init('/home/spark-2.1.0-bin-hadoop2.7')
+
+…
+
+Next we’re going to import the rest of pyspark.We’ll import the spark context, the streaming context, the SQL context for tables, and the ability to sort things in descending order There might be depreciation warnings, but don’t worry. These aren’t errors. You can ignore these.
+
+# May cause deprecation warnings, safe to ignore, they aren't errors
+
+from pyspark import SparkContext
+
+from pyspark.streaming import StreamingContext
+
+from pyspark.sql import SQLContext
+
+from pyspark.sql.functions import desc
+
+First, we have to create an instance of Spark Context sc, then we created the Streaming Context ssc from sc with batch intervals of 10 seconds that will do the transformation on all streams received every ten seconds. We also have the sequel context which will allow us to use sequel commands on this data later
+
+# Can only run this once. restart your kernel for any errors.
+
+sc = SparkContext()
+
+ssc = StreamingContext(sc, 10)
+
+sqlContext = SQLContext(sc)
+
+We defined a socket stream here, where we’ve specified that the streaming context is getting the stream from this address and this port number. As mentioned before, if you try this again, you might want to change the port number on each successive try. Just make sure that the port number in the tweetread python file and this notebook match.
+
+socket_stream = ssc.socketTextStream("127.0.0.1", 5555)
+
+We’re going to define lines as a socketstream window of size 20.
+
+lines = socket_stream.window(20)
+
+….
+
+We’re going to create a named tuple, which is exactly what it sounds like. This is just a Tuple that is assigned names. In this case the tags are the tag and count. In every window, we’re going to take the hashtag, and take a count of how many times that hashtag occurs.
+
+from collections import namedtuple
+
+fields = ("tag", "count")
+
+Tweet = namedtuple('Tweet', fields)
+
+….
+
+Now we’re going to process the tweets here to actually get counts of the hashtags. This is going to go into some examples of some of the functions in Apache Spark, some of which you might be familiar with already, but we will go into more detail in the next lectures. We’re going to take the lines, which contains the tweets, and we’re going to split it up by whitespace to get all the words. We’re going to filter for words that begin with the pound sign, so we’re only interested in hashtags. We’ll also use this map function to make all words lowercase, and placing it in a tuple with a one. We’re then going to store this in a tweet object, in one of these tuples. With foreachRDD, we’re going to store the tweets in a dataframe. This dataframe then is going to be stores in a temporary table called tweets. This will only contain the top 10 tweets, and we’ll be able to call on this later with SQL commands
+
+# Use Parenthesis for multiple lines or use \.
+
+(lines.flatMap(lambda text: text.split("")) #Splits to a list
+
+ .filter(lambda word: word.lower().startswith("#")) # Checks for hashtag calls
+
+ .map(lambda word:(word.lower(), 1)) # Lower cases the word
+
+ .reduceByKey(lambda a,b:a+b) # Reduces
+
+ .map(lambda rec: Tweet(rec[0], rec[1])) # Stores in a Tweet Object
+
+ .foreachRDD( lambda rdd: rdd.toDF().sort(desc("count")) # Sorts Them in a DF
+
+ .limit(10).registerTempTable("tweets"))) # Registers to a table.
+
+ 
+
+Alright. Now at this point you can run the Run the TweetRead.py file at this point. You’ll see in the terminal that it is listening on the port, but it’s not receiving anything just yet.
+
+So we’ve got this next part to display the results. We’re going to import iPython display, for displaying. We’re going to import matplotlib, which is this fantastic plotting library in python. And we’re going to import seaborn. There’s also this final command at the bottom of the cell, with allows us to put matplotlib plots in the notebook. This command only works in jupyter, and not a regular python terminal
+
+import time
+
+from IPython import display
+
+import matplotlib.pyplot as plt
+
+import seaborn as sns
+
+# Only works for Jupyter Notebooks!
+
+%matplotlib inline
+
+Now, We’ll start the spark streaming context using ssc start. As you can see, all of the tweets start showing up in large numbers now. In the next step we’re going to aggregate the data, but for now, we just started the stream, so we’ll just wait a few minutes for more tweets to come in. I’d say at this part you can pause the video and get your stream going for a few minutes, and then return for further instructions.
+
+ssc.start()
+
+…
+
+…
+
+Next we, have the cell for displaying the tags of the top 10 tweets. We’ll create the sequel context, then use that to create a pandas dataframe, which we’ll summarize using seaborn. So while this count is less than 10, we’ll only do this 10 times, it’s going to sleep for 3 seconds, then it’s going to retrieve the sequel context we created. It’s going to convert the top 10 tweets to a pandas dataframe. Pandas is a library that is often used for smaller datasets, such as this set of 10 hashtags. We’re going to clear any existing displays, set up a seaborn figure. We’re going to make a barplot with the relative frequencies of these top hashtags. Since this is only on intervals of seconds, there might not be much difference, but after this video if you want to try again, try setting the window to 300 seconds, or 5 minutes, and try looking at the summaries. We’ll display the plot, and then we’ll add one to the count for the rest of the iterations.
+
+count = 0
+
+while count < 10:
+
+time.sleep(3)
+
+top_10_tweets = sqlContext.sql('Select tag, count from tweets')
+
+top_10_df = top_10_tweets.toPandas()
+
+display.clear_output(wait=True)
+
+sns.plt.figure(figsize = (10, 8))
+
+sns.barplot(x="count", y="tag", data=top_10_df)
+
+sns.plt.show()
+
+count = count + 1
+
+Fantastic, and now we’ve got our display of the top hashtags.
+
+And of course, we conclude with the streaming stop
+
+ssc.stop()
+
+Fantastic. Now we’ve got our example project. A lot of what I showed you is some advanced stuff. We’ll go into more depth for some of the attributes and techniques we used throughout this video. We wanted to give you an example of the types of projects you could create. Plus, we’ve gone over the best practices for running pyspark in your project.
+
+In the next section, we’ll go over the basics of using streaming data with some simpler examples. We’ll go over some demos of how you would go about using all the different transformations and tools, and some of the contexts you’d use. Looking forward to seeing you in the next video.
+
